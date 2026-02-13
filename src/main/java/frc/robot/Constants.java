@@ -4,10 +4,16 @@
 
 package frc.robot;
 
+import org.opencv.dnn.Net;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.DoubleTopic;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -23,28 +29,28 @@ public final class Constants {
   }
   public static class dt {
     public static class mod0 {
-      public static final int drive_id = 39;
-      public static final int turn_id = 43;
-      public static final int can_coder = 5;
-      public static final Rotation2d turn_offset = Rotation2d.fromDegrees(67.3);
+      public static final int drive_id = 39;//39
+      public static final int turn_id = 43;//43
+      public static final int can_coder = 8;//8
+      public static final Rotation2d turn_offset = Rotation2d.fromDegrees(67.3);//67.3
     }
-    public static class mod1 {
-      public static final int drive_id = 60;
-      public static final int turn_id = 24;
-      public static final int can_coder = 6;
-      public static final Rotation2d turn_offset = Rotation2d.fromDegrees(271.2);
+    public static class mod1 { 
+      public static final int drive_id = 60;//60
+      public static final int turn_id = 24;//24
+      public static final int can_coder = 1;//1
+      public static final Rotation2d turn_offset = Rotation2d.fromDegrees(271.2);//271.2
     }
     public static class mod2 {
-      public static final int drive_id = 48;
-      public static final int turn_id = 38;
-      public static final int can_coder = 4;
-      public static final Rotation2d turn_offset = Rotation2d.fromDegrees(103.8);
+      public static final int drive_id = 48;//48
+      public static final int turn_id = 38;//38
+      public static final int can_coder = 2;//2
+      public static final Rotation2d turn_offset = Rotation2d.fromDegrees(256.2);//256.2
     }
     public static class mod3 {
-      public static final int drive_id = 45;
-      public static final int turn_id = 32;
-      public static final int can_coder = 7;
-      public static final Rotation2d turn_offset = Rotation2d.fromDegrees(226.0);
+      public static final int drive_id = 45;//45
+      public static final int turn_id = 32;//32
+      public static final int can_coder = 3;//3
+      public static final Rotation2d turn_offset = Rotation2d.fromDegrees(226.0);//226.0
     }
 
     //this is the drive motor gear ratio, basically 6 rotation of the motor will rotation the drivec motor once
@@ -78,10 +84,10 @@ public final class Constants {
 
     //front of robot is postive x and back of robot is negative x
     //left of robot is positive y and right of robot is negative y
-    public static final Translation2d front_right = new Translation2d(-robot_length / 2, -robot_width / 2);
-    public static final Translation2d back_right = new Translation2d(-robot_length / 2, robot_width / 2);
-    public static final Translation2d back_left = new Translation2d(robot_length / 2, robot_width / 2);
-    public static final Translation2d front_left = new Translation2d(robot_length / 2, -robot_width / 2);
+    public static final Translation2d front_right = new Translation2d(robot_length / 2, -robot_width / 2);
+    public static final Translation2d back_right = new Translation2d(-robot_length / 2, -robot_width / 2);
+    public static final Translation2d back_left = new Translation2d(-robot_length / 2, robot_width / 2);
+    public static final Translation2d front_left = new Translation2d(robot_length / 2, robot_width / 2);
     //swerve drice kinematics
     public static final SwerveDriveKinematics swerve_map = new SwerveDriveKinematics(
       front_right,
@@ -199,4 +205,18 @@ public final class Constants {
     public static final double coral_score_time = 3; //2
   }
   
+  //Constants for PathPlanner
+  public static class PathPlanner{
+
+    //Translation constants for PathPlanner's Controller
+    public static final double translation_kP = 0.5; //.2
+    public static final double translation_kI = 0.00;
+    public static final double translation_kD = 0;
+
+    //Rotation constants for PathPlanner's Controller
+    public static final double rotation_kP = 2.85; //2.5//2.9//2.8
+    public static final double rotation_kI = 0.1; //.00750//008
+    public static final double rotation_kD = 0.0000; //0.0001
+  }
+
 }

@@ -45,10 +45,10 @@ public class Drive extends Command {
   public void execute() {
     //slew rate limiter slows how fast the values change; it takes 1/3 of a second to go from 0 to 1
     //the deadband makes it so if joystick is between -0.1 and 0.1 it will just return 0
-    dt_x = -x_limiter.calculate(MathUtil.applyDeadband(this.joystick_l.getY(), 0.1));
-    dt_y = -y_limiter.calculate(MathUtil.applyDeadband(this.joystick_l.getX(), 0.1));
+    dt_x = -x_limiter.calculate(MathUtil.applyDeadband(this.joystick_l.getX(), 0.1));
+    dt_y = y_limiter.calculate(MathUtil.applyDeadband(this.joystick_l.getY(), 0.1));
     //turns the rotation from a magnitude of 0 to 1 to be in correct speed range using the multiplication
-    rotation = rotation_limiter.calculate(MathUtil.applyDeadband(this.joystick_r.getX(), 0.1)) * Constants.dt.max_angular_speed;
+    rotation = -rotation_limiter.calculate(MathUtil.applyDeadband(this.joystick_r.getX(), 0.1)) * Constants.dt.max_angular_speed;
     //gets robot translation and rotation from joysticks
     //.times multiplies the translation which has a magnitude between 0 and 1 inclusive by the max speed of the robot
     translation = new Translation2d(dt_x * this.max_speed, dt_y * this.max_speed).times(Constants.dt.max_speed); 

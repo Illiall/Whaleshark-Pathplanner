@@ -42,6 +42,8 @@ public class SwerveModule {
     private double drive_speed;
     private MagnetSensorConfigs magnet_sensor_config;
 
+    private Rotation2d yaw_offset = Rotation2d.fromDegrees(90);
+
     public SwerveModule(int module_number, int drive_motor_id, int turn_motor_id, int can_coder_id, Rotation2d turn_offset) {
         this.module_number = module_number;
         this.turn_offset = turn_offset;
@@ -127,7 +129,7 @@ public class SwerveModule {
 
     //returns the current state of the module
     public SwerveModuleState get_state() {
-        return new SwerveModuleState( this.drive_encoder.getVelocity(), get_can_coder());
+        return new SwerveModuleState( this.drive_encoder.getVelocity(), get_can_coder().plus(yaw_offset));
     }
 
     //returns the current position of the module
@@ -163,6 +165,6 @@ public class SwerveModule {
         drive_speed = desired_state.speedMetersPerSecond / Constants.dt.max_speed;
 
         this.turn_motor.set(turn_speed);
-        this.drive_motor.set(drive_speed);
+        this.drive_motor.set(-drive_speed);
     }
 }

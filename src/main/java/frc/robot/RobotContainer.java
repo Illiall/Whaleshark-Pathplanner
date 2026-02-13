@@ -35,6 +35,9 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Intake;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -74,6 +77,7 @@ public class RobotContainer {
   private final JoystickButton reset_gyro = new JoystickButton(l_drive, 1);
   //Button 11
   private final JoystickButton slow_drive = new JoystickButton(l_drive, 11);
+
 
   //Right Driver Joystick
 
@@ -115,10 +119,8 @@ public class RobotContainer {
 
 
   //Auto
-  private final SendableChooser<Command> m_chooser = new SendableChooser<>();
+  private final SendableChooser<Command> m_chooser;
   
-
-
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -126,6 +128,7 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+
     // Configure the trigger bindings
     //elevator.setDefaultCommand(new ElevatorRest(elevator));
     elevator.setDefaultCommand(new RunElevator(elevator, r_operator, 0));
@@ -134,10 +137,11 @@ public class RobotContainer {
     configureBindings();
 
     
-    m_chooser.setDefaultOption("AlgaeCoral", new CoralAlgaeAuto(drivetrain, intake, elevator));
-    m_chooser.addOption("Algae", new AlgaeAuto(drivetrain, intake, elevator));
-    m_chooser.addOption("Test", new TestAuto(elevator, intake, drivetrain));
-    m_chooser.addOption("Processor", new ProcessorAuto(drivetrain, intake, elevator));
+    //m_chooser.setDefaultOption("AlgaeCoral", new CoralAlgaeAuto(drivetrain, intake, elevator));
+    //m_chooser.addOption("Algae", new AlgaeAuto(drivetrain, intake, elevator));
+    //m_chooser.addOption("Test", new TestAuto(elevator, intake, drivetrain));
+    //m_chooser.addOption("Processor", new ProcessorAuto(drivetrain, intake, elevator));
+    m_chooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto choices", m_chooser);
   }
 
