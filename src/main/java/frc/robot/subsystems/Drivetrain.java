@@ -12,6 +12,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -55,6 +56,8 @@ public class Drivetrain extends SubsystemBase {
   DoubleSubscriber TranslationkP, TranslationkI, TranslationkD;
   DoubleSubscriber RotationkP, RotationkI, RotationkD;
 
+  ChassisSpeeds current_speed;
+
   //BooleanSubscriber updatePID;
   
     public Drivetrain() {
@@ -71,6 +74,8 @@ public class Drivetrain extends SubsystemBase {
               Constants.dt.mod3.turn_offset)
       };
       reset_encoders();
+
+      current_speed = Constants.dt.swerve_map.toChassisSpeeds(getModuleState());
 
       // NetworkTable
       instance = NetworkTableInstance.getDefault();
@@ -96,10 +101,14 @@ public class Drivetrain extends SubsystemBase {
       // pose estimator to estimate where the robot is on the field using encoder and
       // yaw data
       pose_estimator = new SwerveDrivePoseEstimator(Constants.dt.swerve_map, get_yaw(),
-          new SwerveModulePosition[] { this.dt[0].get_position(), this.dt[1].get_position(), this.dt[2].get_position(),
-              this.dt[3].get_position() },
+          new SwerveModulePosition[] { 
+            this.dt[0].get_position(), 
+            this.dt[1].get_position(), 
+            this.dt[2].get_position(),
+            this.dt[3].get_position() 
+          },
           new Pose2d());
-  
+
       // field to visualize where pose estimator thinks robot is
       field = new Field2d();
 
@@ -116,8 +125,8 @@ public class Drivetrain extends SubsystemBase {
       AutoBuilder.configure(
           this::get_Pose,
           this::reset_pose,
-          this::getRobotRelativeSpeed,
-          (speed, feedforward) -> DriveRobotRelative(speed),
+          this::get_current_speeds,
+          (speed) -> DriveRobotRelative(speed),
           controller,
           config,
           () -> flipTeam(),
@@ -140,7 +149,7 @@ public class Drivetrain extends SubsystemBase {
     // returns the yaw of robot
     public Rotation2d get_yaw() {
       // gets the yaw as a Rotation 2d variable using Phoenix 6 API
-      return Rotation2d.fromDegrees(gyro.getYaw().getValueAsDouble());
+      return gyro.getRotation2d().plus(yaw_offset);
     }
   
     // drive funciton
@@ -166,19 +175,27 @@ public class Drivetrain extends SubsystemBase {
     // Function that returns a Estimated Position as a Pose2D variable from the Pose
     // Estimator
     public Pose2d get_Pose() {
-      return this.pose_estimator.getEstimatedPosition();
+      Pose2d pose = this.pose_estimator.getEstimatedPosition();
+      return pose;
     }
   
     // Resets the pose of the Robot
     // Uses current rotation, Module positions, and the current pose
     public void reset_pose(Pose2d pose) {
-      this.pose_estimator.resetPosition(get_yaw(), swerveModulePositions(), pose);
-    }
+      this.pose_estimator.resetPose(pose);
+      //this.pose_estimator.resetPosition(get_yaw(), swerveModulePositions(), pose);
+    } 
   
     // Returns the RelativeSpeed of the Robot using the Swerve_Kinematic to access
     // the module state
-    public ChassisSpeeds getRobotRelativeSpeed() {
-      return Constants.dt.swerve_map.toChassisSpeeds(getModuleState());
+    public ChassisSpeeds get_current_speeds() {
+      ChassisSpeeds speed = new ChassisSpeeds(
+        current_speed.vxMetersPerSecond,
+        current_speed.vyMetersPerSecond,
+        current_speed.omegaRadiansPerSecond
+      );
+      return speed;
+      //return Constants.dt.swerve_map.toChassisSpeeds(getModuleState());
     }
   
     // Flips the path's for different team colors
@@ -203,6 +220,8 @@ public class Drivetrain extends SubsystemBase {
       SwerveModuleState[] ModuleStates = Constants.dt.swerve_map.toSwerveModuleStates(speed);
       SwerveDriveKinematics.desaturateWheelSpeeds(ModuleStates, Constants.dt.max_speed);
       for (SwerveModule module : this.dt) {
+        SmartDashboard.putNumber("Module " + module.module_number + " v", ModuleStates[module.module_number].speedMetersPerSecond);
+        SmartDashboard.putNumber("Module " + module.module_number + " w", ModuleStates[module.module_number].angle.getRadians());
         module.set_desired_state(ModuleStates[module.module_number]);
       }
     }
@@ -223,7 +242,8 @@ public class Drivetrain extends SubsystemBase {
           this.dt[0].get_state(),
           this.dt[1].get_state(),
           this.dt[2].get_state(),
-          this.dt[3].get_state() };
+          this.dt[3].get_state() 
+        };
     }
   
     public PPHolonomicDriveController refreshController(){
@@ -246,7 +266,20 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putData("Field", field);
     SmartDashboard.putNumber("Gyro Yaw", get_yaw().getDegrees());
 
+    current_speed = Constants.dt.swerve_map.toChassisSpeeds(getModuleState());
+
+    
     controller = refreshController();
+
+    AutoBuilder.configure(
+          this::get_Pose,
+          this::reset_pose,
+          this::get_current_speeds,
+          (speed) -> DriveRobotRelative(speed),
+          controller,
+          config,
+          () -> flipTeam(),
+          this); 
 
   }
 }

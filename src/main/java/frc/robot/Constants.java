@@ -84,10 +84,10 @@ public final class Constants {
 
     //front of robot is postive x and back of robot is negative x
     //left of robot is positive y and right of robot is negative y
-    public static final Translation2d front_right = new Translation2d(robot_length / 2, -robot_width / 2);
-    public static final Translation2d back_right = new Translation2d(-robot_length / 2, -robot_width / 2);
-    public static final Translation2d back_left = new Translation2d(-robot_length / 2, robot_width / 2);
-    public static final Translation2d front_left = new Translation2d(robot_length / 2, robot_width / 2);
+    public static final Translation2d front_right = new Translation2d(-robot_length / 2, -robot_width / 2);
+    public static final Translation2d back_right = new Translation2d(-robot_length / 2, robot_width / 2);
+    public static final Translation2d back_left = new Translation2d(robot_length / 2, robot_width / 2);
+    public static final Translation2d front_left = new Translation2d(robot_length / 2, -robot_width / 2);
     //swerve drice kinematics
     public static final SwerveDriveKinematics swerve_map = new SwerveDriveKinematics(
       front_right,
@@ -209,14 +209,14 @@ public final class Constants {
   public static class PathPlanner{
 
     //Translation constants for PathPlanner's Controller
-    public static final double translation_kP = 0.5; //.2
-    public static final double translation_kI = 0.00;
-    public static final double translation_kD = 0;
+    public static final double translation_kP = 1.0; //.2//0.5
+    public static final double translation_kI = 0.00000005;//0.0
+    public static final double translation_kD = 0.00000005;//0.0
 
     //Rotation constants for PathPlanner's Controller
-    public static final double rotation_kP = 2.85; //2.5//2.9//2.8
-    public static final double rotation_kI = 0.1; //.00750//008
-    public static final double rotation_kD = 0.0000; //0.0001
+    public static final double rotation_kP = 1.5; //2.5//2.9//2.8//2.85
+    public static final double rotation_kI = 0.00000005; //.00750//008//0.1
+    public static final double rotation_kD = 0.00000005; //0.0001//0.0
   }
 
 }

@@ -44,71 +44,69 @@ public class SwerveModule {
 
     private Rotation2d yaw_offset = Rotation2d.fromDegrees(90);
 
-    public SwerveModule(int module_number, int drive_motor_id, int turn_motor_id, int can_coder_id, Rotation2d turn_offset) {
+    public SwerveModule(int module_number, int drive_motor_id, int turn_motor_id, int can_coder_id,
+            Rotation2d turn_offset) {
         this.module_number = module_number;
         this.turn_offset = turn_offset;
 
-
-
-
-        //can coder stuff new firmware
+        // can coder stuff new firmware
         this.best_turn_encoder = new CANcoder(can_coder_id);
-        //can coder magnet sensor conifg
+        // can coder magnet sensor conifg
         this.magnet_sensor_config = new MagnetSensorConfigs().withAbsoluteSensorDiscontinuityPoint(0.5);
         this.best_turn_encoder.getConfigurator().apply(this.magnet_sensor_config);
-        
-        //drive motor stuff
-        //drive motor controller
+
+        // drive motor stuff
+        // drive motor controller
         this.drive_motor = new SparkMax(drive_motor_id, MotorType.kBrushless);
-        //gets drive encoder from drive motor controller
+        // gets drive encoder from drive motor controller
         this.drive_encoder = this.drive_motor.getEncoder();
 
-        //drive motor config
+        // drive motor config
         this.drive_config = new SparkMaxConfig();
         this.drive_config
-            .inverted(false)
-            .idleMode(IdleMode.kBrake)
-            .smartCurrentLimit(50)
-            .voltageCompensation(12);
+                .inverted(false)
+                .idleMode(IdleMode.kBrake)
+                .smartCurrentLimit(50)
+                .voltageCompensation(12);
         this.drive_config.encoder
-            .positionConversionFactor(Constants.dt.drive_position_conversion_factor)
-            .velocityConversionFactor(Constants.dt.drive_velocity_conversion_factor);
+                .positionConversionFactor(Constants.dt.drive_position_conversion_factor)
+                .velocityConversionFactor(Constants.dt.drive_velocity_conversion_factor);
 
-        //configures motor controller with config data
+        // configures motor controller with config data
         this.drive_motor.configure(this.drive_config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        //resets drive encoder
+        // resets drive encoder
         this.drive_encoder.setPosition(0);
 
-        //drive pid controller
+        // drive pid controller
         this.drive_pid = new PIDController(Constants.dt.drive_kp, Constants.dt.drive_ki, Constants.dt.drive_kd);
 
-        //turn motor stuff
-        //turn motor controller
+        // turn motor stuff
+        // turn motor controller
         this.turn_motor = new SparkMax(turn_motor_id, MotorType.kBrushless);
-        //gets turn encoder from turn motor controller
+        // gets turn encoder from turn motor controller
         this.turn_encoder = this.turn_motor.getEncoder();
 
-        //turn motor config
+        // turn motor config
         this.turn_config = new SparkMaxConfig();
         this.turn_config
-            .inverted(false)
-            .idleMode(IdleMode.kBrake)
-            .smartCurrentLimit(20)
-            .voltageCompensation(12);
+                .inverted(false)
+                .idleMode(IdleMode.kBrake)
+                .smartCurrentLimit(20)
+                .voltageCompensation(12);
         this.turn_config.encoder
-            .positionConversionFactor(Constants.dt.turn_position_conversion_factor);
+                .positionConversionFactor(Constants.dt.turn_position_conversion_factor);
         this.turn_config.signals
-            .externalOrAltEncoderPosition(500);
-        
-        //configures turn motor controller with turn config data
+                .externalOrAltEncoderPosition(500);
+
+        // configures turn motor controller with turn config data
         this.turn_motor.configure(this.turn_config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        //turn pid controller
+        // turn pid controller
         this.turn_pid = new PIDController(Constants.dt.turn_kp, Constants.dt.turn_ki, Constants.dt.turn_kd);
     }
 
-    //resets turn encoders to cancoder offsets
+    // resets turn encoders to cancoder offsets
     public void reset_encoder() {
         this.turn_encoder.setPosition(this.turn_offset.getDegrees());
     }
@@ -121,50 +119,55 @@ public class SwerveModule {
         return this.drive_motor.getBusVoltage();
     }
 
-    //returns can coder value
+    // returns can coder value
     public Rotation2d get_can_coder() {
-        //I multiply this by 360 because it is initially in a range of (-0.5, 0.5] and I want it in degrees.
+        // I multiply this by 360 because it is initially in a range of (-0.5, 0.5] and
+        // I want it in degrees.
         return Rotation2d.fromDegrees(this.best_turn_encoder.getAbsolutePosition().getValue().magnitude() * 360);
     }
 
-    //returns the current state of the module
+    // returns the current state of the module
     public SwerveModuleState get_state() {
-        return new SwerveModuleState( this.drive_encoder.getVelocity(), get_can_coder().plus(yaw_offset));
+        return new SwerveModuleState(this.drive_encoder.getVelocity(), get_can_coder());
     }
 
-    //returns the current position of the module
+    // returns the current position of the module
     public SwerveModulePosition get_position() {
-        return new SwerveModulePosition(this.drive_encoder.getPosition(),get_can_coder().minus(this.turn_offset));
+        return new SwerveModulePosition(this.drive_encoder.getPosition(), get_can_coder().minus(this.turn_offset));
     }
 
-    //sets the swerve modules into their desired states using speed and angles
+    // sets the swerve modules into their desired states using speed and angles
     public void set_desired_state(SwerveModuleState desired_state) {
         current_state = this.get_state();
         current_rotation = current_state.angle.minus(this.turn_offset).plus(new Rotation2d());
-        
-        //optimize the angle used in desired state to make sure itdoes not spin more than 90 degrees
+
+        // optimize the angle used in desired state to make sure itdoes not spin more
+        // than 90 degrees
         desired_state.optimize(current_rotation);
 
-        //scale speed by cosine of angle error, which scales down movemment perpendicular to desired direction of travel which happens when modules change directions
+        // scale speed by cosine of angle error, which scales down movemment
+        // perpendicular to desired direction of travel which happens when modules
+        // change directions
         desired_state.cosineScale(current_rotation);
 
         desired_rotation = desired_state.angle.plus(new Rotation2d());
 
         double diff = desired_rotation.getDegrees() - current_rotation.getDegrees();
-        
+
         if (Math.abs(diff) < 1) {
             turn_speed = 0;
         } else {
             turn_speed = this.turn_pid.calculate(diff, 0);
         }
 
-        //SmartDashboard.putNumber("Can_coder from module" + this.module_number, this.get_can_coder().getDegrees());
-        //SmartDashboard.putNumber("Difference" + this.module_number, diff);
+        SmartDashboard.putNumber("Can_coder from module" + this.module_number, this.get_can_coder().getDegrees());
+        SmartDashboard.putNumber("Difference" + this.module_number, diff);
 
-        //drive_speed = this.drive_pid.calculate(drive_encoder.getVelocity(), desired_state.speedMetersPerSecond);
+        // drive_speed = this.drive_pid.calculate(drive_encoder.getVelocity(),
+        // desired_state.speedMetersPerSecond);
         drive_speed = desired_state.speedMetersPerSecond / Constants.dt.max_speed;
 
         this.turn_motor.set(turn_speed);
-        this.drive_motor.set(-drive_speed);
+        this.drive_motor.set(drive_speed);
     }
 }
