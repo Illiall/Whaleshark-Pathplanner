@@ -4,16 +4,10 @@
 
 package frc.robot;
 
-import org.opencv.dnn.Net;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.DoubleTopic;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -41,8 +35,8 @@ public final class Constants {
       public static final Rotation2d turn_offset = Rotation2d.fromDegrees(271.2);//271.2
     }
     public static class mod2 {
-      public static final int drive_id = 48;//48
-      public static final int turn_id = 38;//38
+      public static final int drive_id = 36;//48
+      public static final int turn_id = 48;//38
       public static final int can_coder = 2;//2
       public static final Rotation2d turn_offset = Rotation2d.fromDegrees(256.2);//256.2
     }
@@ -210,13 +204,13 @@ public final class Constants {
 
     //Translation constants for PathPlanner's Controller
     public static final double translation_kP = 1.0; //.2//0.5
-    public static final double translation_kI = 0.00000005;//0.0
-    public static final double translation_kD = 0.00000005;//0.0
+    public static final double translation_kI = 0.0;//0.0
+    public static final double translation_kD = 0.000002;//0.0
 
     //Rotation constants for PathPlanner's Controller
-    public static final double rotation_kP = 1.5; //2.5//2.9//2.8//2.85
-    public static final double rotation_kI = 0.00000005; //.00750//008//0.1
-    public static final double rotation_kD = 0.00000005; //0.0001//0.0
+    public static final double rotation_kP = 1.0; //2.5//2.9//2.8//2.85
+    public static final double rotation_kI = 0.00003; //.00750//008//0.1
+    public static final double rotation_kD = 0.0; //0.0001//0.0
   }
 
 }

@@ -23,17 +23,13 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.networktables.BooleanSubscriber;
-import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants;
 
 public class Drivetrain extends SubsystemBase {
@@ -220,8 +216,8 @@ public class Drivetrain extends SubsystemBase {
       SwerveModuleState[] ModuleStates = Constants.dt.swerve_map.toSwerveModuleStates(speed);
       SwerveDriveKinematics.desaturateWheelSpeeds(ModuleStates, Constants.dt.max_speed);
       for (SwerveModule module : this.dt) {
-        SmartDashboard.putNumber("Module " + module.module_number + " v", ModuleStates[module.module_number].speedMetersPerSecond);
-        SmartDashboard.putNumber("Module " + module.module_number + " w", ModuleStates[module.module_number].angle.getRadians());
+        //SmartDashboard.putNumber("Module " + module.module_number + " v", ModuleStates[module.module_number].speedMetersPerSecond);
+        //SmartDashboard.putNumber("Module " + module.module_number + " w", ModuleStates[module.module_number].angle.getRadians());
         module.set_desired_state(ModuleStates[module.module_number]);
       }
     }
@@ -279,7 +275,7 @@ public class Drivetrain extends SubsystemBase {
           controller,
           config,
           () -> flipTeam(),
-          this); 
+          this);
 
   }
 }
