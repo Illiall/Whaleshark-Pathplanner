@@ -114,7 +114,7 @@ public class Drivetrain extends SubsystemBase {
     turn_constants = new PIDConstants(Constants.PathPlanner.rotation_kP, Constants.PathPlanner.rotation_kI, Constants.PathPlanner.rotation_kD);
 
     controller = new PPHolonomicDriveController(turn_constants, drive_constants);
-    
+
     try {
       config = RobotConfig.fromGUISettings();
       // If Failed will return an error
