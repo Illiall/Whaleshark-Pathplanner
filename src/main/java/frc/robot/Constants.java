@@ -203,14 +203,14 @@ public final class Constants {
   public static class PathPlanner{
 
     //Translation constants for PathPlanner's Controller
-    public static final double translation_kP = 1.0; //.2//0.5
+    public static final double translation_kP = 0.0; //1.0
     public static final double translation_kI = 0.0;//0.0
-    public static final double translation_kD = 0.000002;//0.0
+    public static final double translation_kD = 0.0;//0.000002
 
     //Rotation constants for PathPlanner's Controller
-    public static final double rotation_kP = 1.0; //2.5//2.9//2.8//2.85
-    public static final double rotation_kI = 0.00003; //.00750//008//0.1
-    public static final double rotation_kD = 0.0; //0.0001//0.0
+    public static final double rotation_kP = 0.0; //1.0
+    public static final double rotation_kI = 0.0; //.00003
+    public static final double rotation_kD = 0.0; //0.0
   }
 
 }

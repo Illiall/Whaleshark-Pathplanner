@@ -66,7 +66,7 @@ public class SwerveModule {
         this.drive_config
                 .inverted(false)
                 .idleMode(IdleMode.kBrake)
-                .smartCurrentLimit(50)
+                .smartCurrentLimit(25)
                 .voltageCompensation(12);
         this.drive_config.encoder
                 .positionConversionFactor(Constants.dt.drive_position_conversion_factor)
@@ -152,6 +152,8 @@ public class SwerveModule {
 
         desired_rotation = desired_state.angle.plus(new Rotation2d());
 
+        // turn_pid.setSetpoint(desired_rotation.getDegrees());
+
         double diff = desired_rotation.getDegrees() - current_rotation.getDegrees();
 
         if (Math.abs(diff) < 1) {
@@ -167,7 +169,17 @@ public class SwerveModule {
         // desired_state.speedMetersPerSecond);
         drive_speed = desired_state.speedMetersPerSecond / Constants.dt.max_speed;
 
+        SmartDashboard.putNumber("Turn Speed", turn_speed);
+        SmartDashboard.putNumber("Drive Speed", drive_speed);
+
         this.turn_motor.set(turn_speed);
         this.drive_motor.set(drive_speed);
     }
+    
+    // public void periodic() {
+    //     current_state = this.get_state();
+    //     current_rotation = current_state.angle.minus(this.turn_offset).plus(new Rotation2d());
+
+    //     this.turn_motor.set(turn_pid.calculate(current_rotation.getDegrees()));
+    // }
 }
